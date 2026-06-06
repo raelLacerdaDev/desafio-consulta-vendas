@@ -3,7 +3,9 @@ package com.devsuperior.dsmeta.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.devsuperior.dsmeta.dto.SaleReportMinDto;
 import com.devsuperior.dsmeta.dto.SaleSummaryMinDto;
+import com.devsuperior.dsmeta.projections.SaleReportByDateProjection;
 import com.devsuperior.dsmeta.projections.SaleSummaryByDateProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,12 @@ public class SaleService {
 	public List<SaleSummaryMinDto> searchSalesSummaryByDate(String start, String end) {
 		List<SaleSummaryByDateProjection> result = repository.saleSummaryByDate(start, end);
 		return result.stream().map(SaleSummaryMinDto::new).toList();
+	}
+
+	@Transactional
+	public List<SaleReportMinDto> searchSalesReport(String start, String end, String name) {
+		List<SaleReportByDateProjection> result = repository.saleReport(start, end, name);
+		return result.stream().map(SaleReportMinDto::new).toList();
 	}
 
 }
