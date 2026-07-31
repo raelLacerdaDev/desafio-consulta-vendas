@@ -2,15 +2,17 @@ package com.devsuperior.dsmeta.repositories;
 
 import com.devsuperior.dsmeta.projections.SaleReportByDateProjection;
 import com.devsuperior.dsmeta.projections.SaleSummaryByDateProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.devsuperior.dsmeta.entities.Sale;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface SaleRepository extends JpaRepository<Sale, Long> {
-
 
     @Query(
             nativeQuery = true,
@@ -20,9 +22,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                     "GROUP BY SE.ID " +
                     "ORDER BY SE.NAME"
     )
-    List<SaleSummaryByDateProjection> saleSummaryByDate(String start, String end);
-
-
+    List<SaleSummaryByDateProjection> saleSummaryByDate(LocalDate start, LocalDate end);
 
     @Query(
             nativeQuery = true,
@@ -33,9 +33,12 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                     "FROM TB_SALES AS SA " +
                     "INNER JOIN TB_SELLER AS SE ON SA.SELLER_ID = SE.ID " +
                     "WHERE SA.DATE BETWEEN :start AND :end " +
+                    "  AND UPPER(SE.NAME) LIKE UPPER(CONCAT('%', :name, '%'))",
+            countQuery = "SELECT COUNT(SA.ID) FROM TB_SALES AS SA " +
+                    "INNER JOIN TB_SELLER AS SE ON SA.SELLER_ID = SE.ID " +
+                    "WHERE SA.DATE BETWEEN :start AND :end " +
                     "  AND UPPER(SE.NAME) LIKE UPPER(CONCAT('%', :name, '%'))"
     )
-    List<SaleReportByDateProjection> saleReport(String start, String end, String name);
-
+    Page<SaleReportByDateProjection> saleReport(LocalDate start, LocalDate end, String name, Pageable pageable);
 
 }
